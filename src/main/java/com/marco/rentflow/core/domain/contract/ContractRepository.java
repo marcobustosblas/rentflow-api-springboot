@@ -4,7 +4,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface ContractRepository {
-    
+
     void save(RentalContract contract);
     Optional<RentalContract> findById(UUID id);
 
