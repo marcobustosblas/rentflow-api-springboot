@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: rentflow-api
+  profiles:
+    active: dev  # Empiezo con Profile active por defecto al arrancar
+
+# Bloqueo de Swagger por defecto por seguridad productiva
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
