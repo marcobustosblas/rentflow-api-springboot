@@ -5,6 +5,7 @@ import com.marco.rentflow.core.domain.contract.ContractRepository;
 import com.marco.rentflow.core.domain.contract.RentalContract;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 public class CreateContractUseCase {
 
@@ -14,17 +15,24 @@ public class CreateContractUseCase {
         this.contractRepository = repository;
     }
 
-    public RentalContract execute(String rawRut, BigDecimal rent) {
+    public RentalContract execute(String rawRut, BigDecimal rent, LocalDate startDate) {
         if (rawRut == null || rawRut.isBlank()) {
             throw new IllegalArgumentException("RUT cannot be null or empty");
         }
         if (rent == null) {
             throw new IllegalArgumentException("Rent amount cannot be null");
         }
+        if (startDate == null) {
+            throw new IllegalArgumentException("Start date cannot be null");
+        }
 
         Rut rut = new Rut(rawRut);
-        RentalContract contract = new RentalContract(rut, rent);
+
+        RentalContract contract = RentalContract.create(rut, rent, startDate);
+
+        // Orquestación hacia la Infraestructura (El adaptador Postgres atrapa esta llamada)
         contractRepository.save(contract);
+
         return contract;
     }
 
