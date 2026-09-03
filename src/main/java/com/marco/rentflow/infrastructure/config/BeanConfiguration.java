@@ -1,6 +1,7 @@
 package com.marco.rentflow.infrastructure.config;
 
 import com.marco.rentflow.core.application.usecase.contract.CreateContractUseCase;
+import com.marco.rentflow.core.application.usecase.contract.FindContractUseCase;
 import com.marco.rentflow.core.domain.contract.ContractRepository;
 import com.marco.rentflow.infrastructure.adapters.out.persistence.memory.InMemoryContractRepository;
 import org.springframework.context.annotation.Bean;
@@ -23,6 +24,12 @@ public class BeanConfiguration {
     @Primary
     public CreateContractUseCase createContractUseCase(ContractRepository repository) {
         return new CreateContractUseCase(repository);
+    }
+
+    // Caso de Uso para BUSCAR contratos
+    @Bean
+    public FindContractUseCase findContractUseCase(ContractRepository repository) {
+        return new FindContractUseCase(repository);
     }
 
 }
