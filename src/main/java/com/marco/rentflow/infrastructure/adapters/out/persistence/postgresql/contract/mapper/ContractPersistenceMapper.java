@@ -18,6 +18,7 @@ public class ContractPersistenceMapper {
                 domain.getTenantRut().value(),
                 domain.getRentAmount(),
                 domain.getStartDate(),
+                domain.getEndDate(),
                 domain.getStatus().name()
         );
     }
@@ -31,6 +32,7 @@ public class ContractPersistenceMapper {
                 rut,
                 entity.getRentAmount(),
                 entity.getStartDate(),
+                entity.getEndDate(),
                 ContractStatus.valueOf(entity.getStatus())
         );
     }

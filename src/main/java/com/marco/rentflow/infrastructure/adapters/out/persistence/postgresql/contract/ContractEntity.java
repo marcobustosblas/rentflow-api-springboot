@@ -10,9 +10,8 @@ import java.util.UUID;
 @Table(name = "contracts")
 public class ContractEntity {
 
-    // a. Quito el @GeneratedValue porque el UUID viene inyectado desde el Dominio Puro
     @Id
-    @Column(name = "id", nullable = false, updatable = false)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(name = "tenant_rut", nullable = false, length = 12)
@@ -21,14 +20,16 @@ public class ContractEntity {
     @Column(name = "rent_amount", nullable = false, precision = 12, scale = 2)
     private BigDecimal rentAmount;
 
-    // b. Agrego los campos vitales del negocio que faltaban
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
+
+    @Column(name = "end_date", nullable = false)  // new CAMPO
+    private LocalDate endDate;
 
     @Column(name = "status", nullable = false, length = 20)
     private String status;
 
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
@@ -45,73 +46,41 @@ public class ContractEntity {
         updatedAt = LocalDateTime.now();
     }
 
-    // Constructor vacío exigido por Hibernate
+    // ⭐ Constructores actualizados
     public ContractEntity() {}
 
-    // Constructor completo para el Mapper
-    public ContractEntity(UUID id, String tenantRut, BigDecimal rentAmount, LocalDate startDate, String status) {
+    public ContractEntity(UUID id, String tenantRut, BigDecimal rentAmount,
+                          LocalDate startDate, LocalDate endDate, String status) {
         this.id = id;
         this.tenantRut = tenantRut;
         this.rentAmount = rentAmount;
         this.startDate = startDate;
+        this.endDate = endDate;
         this.status = status;
     }
 
-    // Getters y Setters
+    // Getters y Setters (todos)
+    public UUID getId() { return id; }
+    public void setId(UUID id) { this.id = id; }
 
-    public UUID getId() {
-        return id;
-    }
+    public String getTenantRut() { return tenantRut; }
+    public void setTenantRut(String tenantRut) { this.tenantRut = tenantRut; }
 
-    public void setId(UUID id) {
-        this.id = id;
-    }
+    public BigDecimal getRentAmount() { return rentAmount; }
+    public void setRentAmount(BigDecimal rentAmount) { this.rentAmount = rentAmount; }
 
-    public String getTenantRut() {
-        return tenantRut;
-    }
+    public LocalDate getStartDate() { return startDate; }
+    public void setStartDate(LocalDate startDate) { this.startDate = startDate; }
 
-    public void setTenantRut(String tenantRut) {
-        this.tenantRut = tenantRut;
-    }
+    public LocalDate getEndDate() { return endDate; } // new
+    public void setEndDate(LocalDate endDate) { this.endDate = endDate; }  // NUEVO SETTER
 
-    public BigDecimal getRentAmount() {
-        return rentAmount;
-    }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 
-    public void setRentAmount(BigDecimal rentAmount) {
-        this.rentAmount = rentAmount;
-    }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
-    public LocalDate getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(LocalDate startDate) {
-        this.startDate = startDate;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 }

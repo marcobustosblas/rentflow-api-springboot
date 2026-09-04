@@ -5,6 +5,7 @@ import com.marco.rentflow.core.domain.contract.RentalContract;
 import com.marco.rentflow.infrastructure.adapters.out.persistence.postgresql.contract.mapper.ContractPersistenceMapper;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -29,6 +30,13 @@ public class ContractPostgresAdapter implements ContractRepository {
     public Optional<RentalContract> findById(UUID id) {
         return jpaRepository.findById(id)
                 .map(mapper::toDomain);
+    }
+
+    @Override
+    public List<RentalContract> findAll() {
+        return jpaRepository.findAll().stream()
+                .map(mapper::toDomain)
+                .toList();
     }
 
 }
