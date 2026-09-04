@@ -31,7 +31,8 @@ public class RentalContract {
         this.id = Objects.requireNonNull(id, "Id cannot be null");
         this.tenantRut = Objects.requireNonNull(rut, "Tenant RUT cannot be null");
         this.rentAmount = validateRentAmount(rentAmount);
-        this.startDate = Objects.requireNonNull(startDate, "Start date cannot be null");
+        this.startDate = validateStartDate(startDate);
+        this.endDate = validateEndDate(endDate, startDate);
         this.status = Objects.requireNonNull(status, "Status cannot be null");
     }
 
