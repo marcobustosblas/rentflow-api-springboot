@@ -1,6 +1,7 @@
 package com.marco.rentflow.core.domain.contract;
 
 import com.marco.rentflow.core.domain.common.Rut;
+import com.marco.rentflow.core.domain.contract.exceptions.BusinessRuleException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -61,17 +62,19 @@ public class RentalContract {
 
     public void renegotiateRent(BigDecimal newRentAmount) {
         if (this.status != ContractStatus.ACTIVE) {
-            throw new IllegalStateException("Cannot renegotiate a non-active contract");
+            throw new BusinessRuleException(
+                    "Cannot renegotiate a contract with status: " + this.status
+            );
         }
         this.rentAmount = validateRentAmount(newRentAmount);
     }
 
     public void renew(LocalDate newEndDate) {
         if (this.status != ContractStatus.ACTIVE) {
-            throw new IllegalStateException("Cannot renew a inactive contract");
-        }
+            throw new BusinessRuleException("Cannot renew a inactive contract");
+        } // Aquí descifré una regla de negocio con criterio
         if (newEndDate.isBefore(this.endDate)) {
-            throw new IllegalArgumentException("New end date must be after current end date");
+            throw new BusinessRuleException("New end date must be after current end date");
         }
         this.endDate = newEndDate;
         this.status = ContractStatus.RENEWED;
@@ -79,7 +82,10 @@ public class RentalContract {
 
     public void cancel() {
         if (this.status == ContractStatus.TERMINATED) {
-            throw new IllegalStateException("Contract is already terminated");
+            throw new BusinessRuleException("Contract is already terminated");
+        }
+        if (this.status == ContractStatus.EXPIRED) {
+            throw new BusinessRuleException("Cannot cancel an expired contract");
         }
         this.status = ContractStatus.TERMINATED; // Ejemplo de regla de negocio
     }
