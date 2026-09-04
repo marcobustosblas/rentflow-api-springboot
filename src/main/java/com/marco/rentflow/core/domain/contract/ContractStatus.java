@@ -4,5 +4,6 @@ public enum ContractStatus {
     DRAFT,       // Borrador / En preparación
     ACTIVE,      // Contrato vigente y activo
     TERMINATED,  // Finalizado anticipadamente de mutuo acuerdo o rescisión
-    EXPIRED
+    EXPIRED,
+    RENEWED,     // Renovado por un nuevo periodo
 }
