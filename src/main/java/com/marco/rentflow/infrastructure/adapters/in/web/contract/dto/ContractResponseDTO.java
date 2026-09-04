@@ -9,5 +9,6 @@ public record ContractResponseDTO(
         String tenantRut,
         BigDecimal rentAmount,
         LocalDate startDate,
+        LocalDate endDate,
         String status
 ) {}

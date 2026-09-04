@@ -13,6 +13,7 @@ public class ContractRestMapper {
                 domain.getTenantRut().value(),
                 domain.getRentAmount(),
                 domain.getStartDate(),
+                domain.getEndDate(),
                 domain.getStatus().name()
         );
     }

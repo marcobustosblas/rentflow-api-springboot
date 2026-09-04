@@ -15,5 +15,8 @@ public record CreateContractRequestDTO(
         BigDecimal rentAmount,
 
         @NotNull(message = "Fecha de inicio es obligatoria")
-        LocalDate startDate
+        LocalDate startDate,
+
+        @NotNull(message = "Fecha de término es obligatoria")
+        LocalDate endDate
 ) {}
