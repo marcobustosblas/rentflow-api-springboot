@@ -71,10 +71,12 @@ public class RentalContract {
 
     public void renew(LocalDate newEndDate) {
         if (this.status != ContractStatus.ACTIVE) {
-            throw new BusinessRuleException("Cannot renew a inactive contract");
-        } // Aquí descifré una regla de negocio con criterio
+            throw new BusinessRuleException(
+                    "Cannot renew a contract with status: " + this.status
+            );
+        }
         if (newEndDate.isBefore(this.endDate)) {
-            throw new BusinessRuleException("New end date must be after current end date");
+            throw new BusinessRuleException("New end date must be after current end date (" + this.endDate + ")");
         }
         this.endDate = newEndDate;
         this.status = ContractStatus.RENEWED;

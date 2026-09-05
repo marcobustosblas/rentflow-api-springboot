@@ -22,7 +22,9 @@ public class ContractPostgresAdapter implements ContractRepository {
 
     @Override
     public void save(RentalContract contract) {
+        boolean exists = jpaRepository.existsById(contract.getId());
         ContractEntity entity = mapper.toEntity(contract);
+        entity.setNew(!exists);
         jpaRepository.save(entity);
     }
 

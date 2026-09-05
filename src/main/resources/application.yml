@@ -2,7 +2,7 @@ spring:
   application:
     name: rentflow-api-springboot
   profiles:
-    active: dev  # Empiezo con Profile active por defecto al arrancar
+    default: dev  # Perfil por defecto al arrancar si no se especifica otro
 
 # Bloqueo de Swagger por defecto por seguridad productiva
 springdoc:

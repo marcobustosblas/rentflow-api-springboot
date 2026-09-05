@@ -1,6 +1,8 @@
 package com.marco.rentflow.infrastructure.adapters.out.persistence.postgresql.contract;
 
 import jakarta.persistence.*;
+import org.springframework.data.domain.Persistable;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -8,11 +10,13 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "contracts")
-public class ContractEntity {
+public class ContractEntity implements Persistable<UUID> {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+
+    @Transient
+    private boolean isNew = true;
 
     @Column(name = "tenant_rut", nullable = false, length = 12)
     private String tenantRut;
@@ -23,7 +27,7 @@ public class ContractEntity {
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
 
-    @Column(name = "end_date", nullable = false)  // new CAMPO
+    @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
 
     @Column(name = "status", nullable = false, length = 20)
@@ -46,7 +50,21 @@ public class ContractEntity {
         updatedAt = LocalDateTime.now();
     }
 
-    // ⭐ Constructores actualizados
+    @PostLoad
+    @PostPersist
+    protected void markNotNew() {
+        this.isNew = false;
+    }
+
+    @Override
+    public boolean isNew() {
+        return isNew;
+    }
+
+    public void setNew(boolean isNew) {
+        this.isNew = isNew;
+    }
+
     public ContractEntity() {}
 
     public ContractEntity(UUID id, String tenantRut, BigDecimal rentAmount,
@@ -59,7 +77,8 @@ public class ContractEntity {
         this.status = status;
     }
 
-    // Getters y Setters (todos)
+    // Getters y Setters
+    @Override
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
 
@@ -72,8 +91,8 @@ public class ContractEntity {
     public LocalDate getStartDate() { return startDate; }
     public void setStartDate(LocalDate startDate) { this.startDate = startDate; }
 
-    public LocalDate getEndDate() { return endDate; } // new
-    public void setEndDate(LocalDate endDate) { this.endDate = endDate; }  // NUEVO SETTER
+    public LocalDate getEndDate() { return endDate; }
+    public void setEndDate(LocalDate endDate) { this.endDate = endDate; }
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }

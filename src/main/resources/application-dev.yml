@@ -1,6 +1,3 @@
-server:
-  port: 8080
-
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/rentflow
@@ -19,9 +16,12 @@ spring:
 
 # Solo se activa si el perfil "dev" está corriendo
 springdoc:
-  swagger-ui:
-    enabled: true
-    path: /swagger-ui.html
   api-docs:
-    enabled: true
     path: /api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+
+server:
+  port: 8080
