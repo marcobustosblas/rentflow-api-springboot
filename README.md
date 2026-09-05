@@ -1,192 +1,135 @@
-# 🏢 RentFlow - Sistema de Gestión de Contratos de Arrendamiento
+# 🏢 RentFlow API (rentflow-api-springboot)
 
 [![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://adoptium.net/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.4-brightgreen.svg)](https://spring.io/projects/spring-boot)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue.svg)](https://www.postgresql.org/)
 [![Docker](https://img.shields.io/badge/Docker-26.1.3-blue.svg)](https://www.docker.com/)
-[![JUnit](https://img.shields.io/badge/JUnit-5.10.2-green.svg)](https://junit.org/junit5/)
-[![Swagger](https://img.shields.io/badge/Swagger-OpenAPI%203.0-success.svg)](https://swagger.io/)
+
+API RESTful para la gestión de contratos de arrendamiento. Desarrollada con Java 21 y Spring Boot 3.3.4, siguiendo los principios de **Arquitectura Hexagonal** y **Domain-Driven Design (DDD)**.
 
 ---
 
-## Descripción
+## Arquitectura
 
-**RentFlow** es un sistema de gestión de contratos de arrendamiento construido con **Arquitectura Limpia**, **Domain-Driven Design (DDD)** y **Spring Boot**. Este proyecto demuestra la separación de responsabilidades en capas, aislando la lógica de negocio de los detalles de infraestructura, con persistencia real en PostgreSQL y documentación interactiva con Swagger.
-
-### Propósito
-
-- Gestionar contratos de arrendamiento
-- Demostrar principios de **Arquitectura Limpia** y **Hexagonal**
-- Implementar **DDD** con Value Objects, Entidades y Agregados
-- Exponer **API REST** con Spring Boot
-- Persistencia real con **PostgreSQL** y **Docker**
-- Documentación interactiva con **Swagger/OpenAPI**
+| Capa | Propósito |
+|------|-----------|
+| **Domain** | Entidades, Value Objects y excepciones de negocio. **100% Java puro** (sin anotaciones de Spring). |
+| **Application** | Casos de uso (Create, Find, Cancel, Renew). Orquestan el flujo de datos. |
+| **Infrastructure** | Adaptadores: JPA, controladores REST, configuración CORS y manejo global de excepciones. |
 
 ---
 
-##  Arquitectura
+## Requisitos Técnicos de Infraestructura
 
-El proyecto sigue la **Arquitectura Hexagonal (Puertos y Adaptadores)** con 3 capas principales:
+### Docker Desktop (Obligatorio) 🐳
 
-```text
-┌───────────────────────────────────────────────────────────────────┐
-│ INFRASTRUCTURE (Adaptadores)                                      │
-│ ┌───────────────────────────────────────────────────────────────┐ │
-│ │ CONTROLLER (Adaptador de Entrada)                             │ │
-│ │ • Recibe peticiones HTTP                                      │ │
-│ │ • Convierte DTO → Dominio                                     │ │
-│ │ • Llama al Caso de Uso                                        │ │
-│ └───────────────────────────────────────────────────────────────┘ │
-│ │                                                                 │
-│ ▼                                                                 │
-│ ┌───────────────────────────────────────────────────────────────┐ │
-│ │ APPLICATION (Casos de Uso)                                    │ │
-│ │ • Orquesta la lógica de negocio                               │ │
-│ │ • Usa Puertos (interfaces)                                    │ │
-│ │ • SIN anotaciones de Spring                                   │ │
-│ └───────────────────────────────────────────────────────────────┘ │
-│ │                                                                 │
-│ ▼                                                                 │
-│ ┌───────────────────────────────────────────────────────────────┐ │
-│ │ DOMAIN (Núcleo)                                               │ │
-│ │ • Entidades (RentalContract)                                  │ │
-│ │ • Value Objects (Rut)                                         │ │
-│ │ • Puertos (ContractRepository)                                │ │
-│ │ • SIN anotaciones de Spring                                   │ │
-│ └───────────────────────────────────────────────────────────────┘ │
-│ │                                                                 │
-│ ▼                                                                 │
-│ ┌───────────────────────────────────────────────────────────────┐ │
-│ │ ADAPTADOR POSTGRESQL (Adaptador de Salida)                    │ │
-│ │ • Implementa el Puerto ContractRepository                     │ │
-│ │ • Convierte Dominio ↔ JPA Entity                              │ │
-│ │ • Usa Spring Data JPA                                         │ │
-│ └───────────────────────────────────────────────────────────────┘ │
-└───────────────────────────────────────────────────────────────────┘
-```
+**Este proyecto utiliza una base de datos virtualizada con Docker. No utiliza PostgreSQL instalado localmente en tu sistema operativo.**
 
-## Estructura de Carpetas
+| Aspecto | Detalle Técnico |
+|---------|-----------------|
+| **Base de datos** | PostgreSQL 16.4 (Imagen oficial `postgres:16-alpine`) |
+| **Puerto mapeado** | `5432:5432` (Host:Contenedor) |
+| **Persistencia** | Volumen Docker `postgres_data` para mantener los datos |
+| **Usuario** | `admin` |
+| **Base de datos** | `rentflow` |
 
-```text
-src/main/java/com/marco/rentflow/
-│
-├── core/                                    # Capas internas (Java puro)
-│   ├── domain/                              # Reglas de negocio PURAS
-│   │   ├── common/
-│   │   │   └── Rut.java                     # Value Object auto-validante
-│   │   └── contract/
-│   │       ├── RentalContract.java          # Agregado principal
-│   │       ├── ContractStatus.java          # Enum de estado
-│   │       ├── ContractRepository.java      # PUERTO (interfaz)
-│   │       └── ContractNotFoundException.java # Excepción de dominio
-│   └── application/                         # Casos de Uso
-│       └── usecase/
-│           └── contract/
-│               ├── CreateContractUseCase.java
-│               └── FindContractUseCase.java
-│
-└── infrastructure/                          # Capas externas
-    ├── adapters/
-    │   ├── in/                              # Adaptadores de ENTRADA
-    │   │   └── web/
-    │   │       └── contract/
-    │   │           ├── ContractController.java    # REST Controller
-    │   │           └── dto/
-    │   │               ├── CreateContractRequestDTO.java
-    │   │               └── ContractResponseDTO.java
-    │   └── out/                             # Adaptadores de SALIDA
-    │       └── persistence/
-    │           ├── memory/
-    │           │   └── InMemoryContractRepository.java
-    │           └── postgresql/
-    │               └── contract/
-    │                   ├── ContractEntity.java      # JPA Entity
-    │                   ├── SpringDataContractRepository.java
-    │                   ├── ContractPostgresAdapter.java
-    │                   └── mapper/
-    │                       └── ContractPersistenceMapper.java
-    └── config/
-        ├── BeanConfiguration.java           # Wiring con Spring
-        └── GlobalExceptionHandler.java      # Manejo global de errores
-````
+**¿Por qué es obligatorio Docker Desktop?**
 
-##  Tecnologías Utilizadas
-
-| Tecnología | Versión | Propósito |
-| :--- | :---: | :--- |
-| **Java** | `21` | Lenguaje principal |
-| **Spring Boot** | `3.3.4` | Framework base |
-| **Spring Web** | `3.3.4` | API REST |
-| **Spring Data JPA** | `3.3.4` | Persistencia |
-| **Hibernate** | `6.5.3` | ORM |
-| **PostgreSQL** | `16` | Base de datos real |
-| **Docker** | `26.1.3` | Virtualización de servicios |
-| **Swagger/OpenAPI** | `2.5.0` | Documentación interactiva |
-| **JUnit 5** | `5.10.2` | Pruebas unitarias |
-
+1. La base de datos **solo existe dentro del contenedor**; no hay una instalación local de PostgreSQL.
+2. Garantiza que la aplicación funcione en cualquier entorno sin conflictos de versiones.
+3. El archivo `compose.yml` define todas las variables de entorno (`POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`).
 
 ---
 
-##  Instalación y Ejecución
+## Instalación y Ejecución (Guía para Evaluadores)
 
-### Prerrequisitos
-- **Java 21** instalado en tu sistema.
-- **Docker Desktop** (en ejecución).
-- **Maven 3.9+**.
-- **Postman**, **Bruno** o Navegador Web.
+### Paso 0: Verificar Docker Desktop
+**Asegúrate de tener Docker Desktop instalado y en ejecución.**
 
-### 1. Clonar el repositorio
+- **Windows/Mac:** Abre Docker Desktop y verifica que el ícono esté verde (motor en ejecución).
+- **Linux:** Ejecuta `sudo systemctl status docker` para verificar que el servicio esté activo.
+
+### Paso 1: Levantar la Base de Datos Virtual (PostgreSQL)
 ```bash
-git clone [https://github.com/marcobustosblas/rentflow-hito4.git](https://github.com/marcobustosblas/rentflow-hito4.git)
-cd rentflow-hito4
+# Navega a la raíz del proyecto
+cd rentflow-api-springboot
+
+# Levanta el contenedor en segundo plano
+docker compose up -d
+
+# Verifica que el contenedor esté corriendo
+docker ps
+```
+**Salida esperada:**
+```
+CONTAINER ID   IMAGE                 COMMAND                  CREATED         STATUS         PORTS                    NAMES
+abc123...      postgres:16-alpine    "docker-entrypoint.s…"   5 seconds ago   Up 5 seconds   0.0.0.0:5432->5432/tcp   rentflow-db
 ```
 
-### 2. Levantar PostgreSQL con Docker
-Asegúrate de tener el puerto 5432 libre en tu máquina (sin instalaciones locales de Postgres compitiendo) antes de ejecutar:
+### Paso 2: Ejecutar el Backend (Spring Boot)
+```bash
+# Limpia y compila el proyecto
+mvn clean compile
 
-```text
+# Ejecuta el servidor en el perfil de desarrollo
+mvn spring-boot:run "-Dspring.profiles.active=dev"
+```
+**Verifica que el servidor arranque correctamente:**
+```
+Started Application in X.XXX seconds
+Tomcat started on port 8080 (http) with context path ''
+```
+
+**Swagger UI:** http://localhost:8080/swagger-ui.html
+
+### Paso 3: Probar la Conexión a la Base de Datos Virtual (Opcional)
+```bash
+# Ingresa al contenedor y conecta a la base de datos
+docker exec -it rentflow-db psql -U admin -d rentflow
+
+# Dentro de psql, ejecuta un comando de prueba
+rentflow=# SELECT 1;
+```
+**Salida esperada:**
+```
+?column?
+----------
+        1
+(1 row)
+```
+
+---
+
+## Endpoints REST
+
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET | `/api/v1/contracts` | Listar todos |
+| GET | `/api/v1/contracts/{id}` | Buscar por ID |
+| POST | `/api/v1/contracts` | Crear contrato |
+| PATCH | `/api/v1/contracts/{id}/cancel` | Cancelar |
+| PATCH | `/api/v1/contracts/{id}/renew` | Renovar |
+
+---
+
+## Guía de Ejecución Full-Stack (Para Evaluadores)
+
+**Paso 1: Base de Datos (Virtualizada con Docker)**
+```bash
 docker compose up -d
 ```
 
-### 3. Ejecutar Spring Boot
-Ejecuta la aplicación asegurándote de activar el perfil de desarrollo para tener acceso a Swagger:
-
-```text
-mvn spring-boot:run -Dspring-boot.run.profiles=dev
+**Paso 2: Lógica de Negocio (Spring Boot)**
+```bash
+mvn clean spring-boot:run "-Dspring.profiles.active=dev"
 ```
 
-### 4. Probar la API
-A. Documentación Interactiva (Swagger)
-Abre tu navegador web en la siguiente ruta:
-
-```text
-http://localhost:8080/swagger-ui/index.html
-```
-B. Crear un contrato (Endpoint POST)
-Puedes disparar esta petición desde Bruno o Postman:
-
-```text
-HTTP
-POST http://localhost:8080/api/v1/contracts
-Content-Type: application/json
-
-{
-  "rut": "12345678-9",
-  "rentAmount": 500000,
-  "startDate": "2026-09-01"
-}
+**Paso 3: Interfaz de Usuario (Frontend React)**
+```bash
+cd ../rentflow-frontend
+npm install
+npm run dev
 ```
 
-```text
-Respuesta esperada (201 Created):
-
-JSON
-{
-  "id": "550e8400-e29b-41d4-a716-446655440000",
-  "tenantRut": "12345678-9",
-  "rentAmount": 500000,
-  "startDate": "2026-09-01",
-  "status": "ACTIVE"
-}
-```
-
+**Paso 4: Validación End-to-End**
+Abrir `http://localhost:5173`. Crear un contrato y verificar que se guarda exitosamente (status 201 Created).
